@@ -30,12 +30,16 @@ const getRealTimeData = async (req, res) => {
         }, 5000);
 
         // Clear the interval on disconnect
-        socket.on("disconnect", () => {
-            clearInterval(intervalId);
+        const cleanup = () => {
+            clearInterval(intervalId); // Clear interval
             console.log(
                 `Client disconnected, cleared interval with id: ${intervalId}`
             );
-        });
+            socket.off("disconnect", cleanup); // Remove the disconnect listener
+        };
+
+        // Attach the cleanup function to the disconnect event
+        socket.on("disconnect", cleanup);
     });
 
     // Clear the interval on disconnect
